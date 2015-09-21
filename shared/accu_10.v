@@ -10,14 +10,11 @@ module accu10(out, enable_out, in, clk, rst);
 	always@(posedge clk or negedge rst) begin
 		if (counter == 7) begin
 			out <= buffer;
-			count <= counter + 1;
-			enable_out <= 1;
-		end else if(rst or counter > 7) begin
-			counter <= 'b0;
-			out <= 'b0;
 			buffer <= 'b0;
-			enable_out <= 'b0;
+			count <= 'b0;
+			enable_out <= 1;
 		end else begin
+			enable_out <= 'b0;
 			{overflow, buffer} <= out + in;
 			counter <= counter + 1;
 		end
