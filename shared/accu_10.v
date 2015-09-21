@@ -1,19 +1,25 @@
-module accu10(out, overflow, in, clk, rst);
+module accu10(out, enable_out, in, clk, rst);
 	// Module to take a single bit input and turn it into a 10 bit output
 	input in;
 	input clk;
 	input rst;
 	reg [3:0] counter;
-	output wire [9:0] out;
-	output reg overflow;
+	reg [7:0] buffer;
+	output wire [7:0] out;
+	reg overflow;
 	always@(posedge clk or negedge rst) begin
-		if(rst or counter > 10) begin
+		if (counter == 7) begin
+			out <= buffer;
+			count <= counter + 1;
+			enable_out <= 1;
+		end else if(rst or counter > 7) begin
 			counter <= 'b0;
 			out <= 'b0;
-			overflow <= 'b0;
+			buffer <= 'b0;
+			enable_out <= 'b0;
 		end else begin
-			{overflow, out} <= out + in;
-			counter <= counter + 1
+			{overflow, buffer} <= out + in;
+			counter <= counter + 1;
 		end
 	end
 endmodule
