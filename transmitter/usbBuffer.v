@@ -4,7 +4,7 @@
 // 
 // Create Date: 09/16/2015 04:15:57 PM
 // Design Name: 
-// Module Name: inputBuffer
+// Module Name: usbBuffer
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -19,13 +19,13 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-// NOTE : CURRENTLY WILL OVERWRITE IF FULL
+// NOTE : CURRENTLY WILL OVERWRITE IF FULL, BUT THROWS ERROR FLAG
 
-module inputBuffer(
+module usbBuffer(
     output reg [31:0] shiftOut,
     input [7:0] shiftIn,
-    input pop,
     input clk,
+    input pop
     );
     
 integer BUFF_SIZE = 64;
@@ -36,6 +36,10 @@ integer pushLoc = 0; // buffer index to push
 integer bytesGot = 0; // bytes currently stored in accumulator
 integer byteIndex = 0; // index for accumulator loop
 integer dataReady = 0; // flag indicating buffer has fresh data to pop
+
+/* Need to figure out how we want to deal with buffer full / empty errors...
+-In final implementation they should never occur, so this is more for debugging purposes */
+integer ovrwrError = 0; // flag indicating valid data has been overwritten
 
 always @(posedge clk)
 begin
@@ -52,6 +56,14 @@ begin
   // and reset all relevant counters / indices
   if(bytesGot == 4)
   begin
+    // if push/pop at same index and data ready,
+    // overwrite error is occurring, throw flag
+    // (dataReady prevents this error from throwing on 1st entry)
+    if(pushLoc == popLoc && dataReady)
+    begin
+      ovrwrError = 1;
+      $display("DATA OVERWRITTEN");
+    end
     dataBuffer[pushLoc] = bytesIn;
     bytesIn = 0;
     bytesGot = 0;
