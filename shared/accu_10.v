@@ -3,7 +3,7 @@ module accu10(out, enable_out, in, clk, rst);
 	input in;
 	input clk;
 	input rst;
-	reg [3:0] counter;
+	reg [3:0] counter = 0;
 	reg [7:0] buffer;
 	output wire [7:0] out;
 	reg overflow;
